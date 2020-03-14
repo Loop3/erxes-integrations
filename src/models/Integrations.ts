@@ -13,6 +13,8 @@ export interface IIntegration {
   expiration?: string;
   gmailHistoryId?: string;
   chatfuelConfigs?: { [key: string]: string };
+  whatsProInstanceId?: string;
+  whatsProToken?: string;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}
@@ -37,6 +39,8 @@ export const integrationSchema = new Schema({
     type: Object,
     default: {},
   }),
+  whatsProInstanceId: String,
+  whatsProToken: String,
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {

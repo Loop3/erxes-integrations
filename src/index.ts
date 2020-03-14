@@ -15,6 +15,7 @@ import { initRedis } from './redisClient';
 import { init } from './startup';
 import initTwitter from './twitter/controller';
 import initDaily from './videoCall/controller';
+import initWhatsPro from './whatspro/controller';
 
 initRedis();
 
@@ -114,6 +115,9 @@ initChatfuel(app);
 
 // init chatfuel
 initDaily(app);
+
+// init whatsPro
+initWhatsPro(app);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {

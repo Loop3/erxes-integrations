@@ -4,7 +4,7 @@ import {
   Conversations as ChatfuelConversations,
   Customers as ChatfuelCustomers,
 } from './chatfuel/models';
-import { debugCallPro, debugFacebook, debugGmail, debugNylas, debugTwitter } from './debuggers';
+import { debugCallPro, debugFacebook, debugGmail, debugNylas, debugTwitter, debugWhatsPro } from './debuggers';
 import {
   Comments as FacebookComments,
   ConversationMessages as FacebookConversationMessages,
@@ -48,6 +48,12 @@ import {
   Conversations as TwitterConversations,
   Customers as TwitterCustomers,
 } from './twitter/models';
+import {
+  ConversationMessages as WhatsProConversationMessages,
+  Conversations as WhatsProConversations,
+  Customers as WhatsProCustomers,
+} from './whatspro/models';
+
 import { getEnv, resetConfigsCache, sendRequest } from './utils';
 
 export const removeIntegration = async (integrationErxesApiId: string): Promise<string> => {
@@ -164,6 +170,16 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
     await TwitterConversationMessages.deleteMany(selector);
     await TwitterConversations.deleteMany(selector);
     await TwitterCustomers.deleteMany({ conversationId: { $in: conversationIds } });
+  }
+
+  if (kind === 'whatspro') {
+    debugWhatsPro('Removing whatspro entries');
+
+    const conversationIds = await WhatsProConversations.find(selector).distinct('_id');
+
+    await WhatsProConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await WhatsProConversations.deleteMany(selector);
+    await WhatsProCustomers.deleteMany(selector);
   }
 
   // Remove from core =========
@@ -315,6 +331,7 @@ export const removeCustomers = async params => {
   await ChatfuelCustomers.deleteMany(selector);
   await CallProCustomers.deleteMany(selector);
   await TwitterCustomers.deleteMany(selector);
+  await WhatsProCustomers.deleteMany(selector);
 };
 
 export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
