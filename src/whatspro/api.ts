@@ -63,10 +63,9 @@ export const sendFile = (receiverId: string, body: string, src: string, token: s
 };
 
 export const setupInstance = (integrationId: string, token: string): Promise<void> => {
+  const webhookUrl = `${getEnv({ name: 'DOMAIN' })}/whatspro/webhook?integrationId=${integrationId}`;
   const requestOptions = {
-    url: `${base_url}/api/message/callback?token=${token}&url=${getEnv({
-      name: 'DOMAIN',
-    })}/whatspro/webhook?integrationId=${integrationId}`,
+    url: `${base_url}/api/message/callback?token=${token}&url=${webhookUrl}`,
     body: {},
     json: true,
   };
