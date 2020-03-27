@@ -41,25 +41,26 @@ const receiveMessage = async (message: any, integrationId: string) => {
       } catch (e) {
         throw new Error(e.message.includes('duplicate') ? 'Concurrent request: conversation duplication' : e);
       }
+    }
 
-      // save on api
-      try {
-        const apiConversationResponse = await sendRPCMessage({
-          action: 'create-or-update-conversation',
-          payload: JSON.stringify({
-            customerId: customer.erxesApiId,
-            integrationId: integration.erxesApiId,
-            content,
-          }),
-        });
+    // save on api
+    try {
+      const apiConversationResponse = await sendRPCMessage({
+        action: 'create-or-update-conversation',
+        payload: JSON.stringify({
+          customerId: customer.erxesApiId,
+          integrationId: integration.erxesApiId,
+          conversationId: conversation.erxesApiId,
+          content,
+        }),
+      });
 
-        conversation.erxesApiId = apiConversationResponse._id;
+      conversation.erxesApiId = apiConversationResponse._id;
 
-        await conversation.save();
-      } catch (e) {
-        await Conversations.deleteOne({ _id: conversation._id });
-        throw new Error(e);
-      }
+      await conversation.save();
+    } catch (e) {
+      await Conversations.deleteOne({ _id: conversation._id });
+      throw new Error(e);
     }
 
     // get conversation message
