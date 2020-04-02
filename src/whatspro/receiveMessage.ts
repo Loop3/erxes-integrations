@@ -2,6 +2,7 @@ import { sendRPCMessage } from '../messageBroker';
 import Integrations from '../models/Integrations';
 import { ConversationMessages, Conversations } from './models';
 import { getOrCreateCustomer } from './store';
+import { convertWAToHtml } from './helpers';
 
 const receiveMessage = async (message: any, integrationId: string) => {
   const integration = await Integrations.getIntegration({
@@ -14,8 +15,11 @@ const receiveMessage = async (message: any, integrationId: string) => {
     await ConversationMessages.updateOne({ mid: message._id }, { $set: { status: message.status } });
   } else if (message.self === 'in') {
     const phoneNumber = message.contact.phone;
+
     let name = message.contact.name;
-    let content = message.message;
+
+    let content = convertWAToHtml(message.message);
+
     if (message.isGroupMsg) {
       name = `${name} - Group`;
       content = `${content} - From ${message.sender.name || message.sender.pushname}`;
