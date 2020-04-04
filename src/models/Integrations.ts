@@ -9,10 +9,21 @@ export interface IIntegration {
   facebookPageTokensMap?: { [key: string]: string };
   email: string;
   phoneNumber: string;
-  tenant: string;
+  recordUrl: string;
   expiration?: string;
   gmailHistoryId?: string;
   chatfuelConfigs?: { [key: string]: string };
+  telegramBotToken?: string;
+  viberBotToken?: string;
+  lineChannelId?: string;
+  lineChannelSecret?: string;
+  twilioSid?: string;
+  twilioAuthToken?: string;
+  twilioPhoneSid?: string;
+  smoochDisplayName?: string;
+  smoochIntegrationId?: string;
+  whatsappinstanceId?: string;
+  whatsappToken?: string;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}
@@ -24,7 +35,7 @@ export const integrationSchema = new Schema({
   accountId: String,
   erxesApiId: String,
   phoneNumber: String,
-  tenant: String,
+  recordUrl: String,
   facebookPageIds: [String],
   email: String,
   expiration: String,
@@ -37,6 +48,17 @@ export const integrationSchema = new Schema({
     type: Object,
     default: {},
   }),
+  telegramBotToken: String,
+  viberBotToken: String,
+  lineChannelId: String,
+  lineChannelSecret: String,
+  twilioSid: String,
+  twilioAuthToken: String,
+  twilioPhoneSid: String,
+  smoochDisplayName: String,
+  smoochIntegrationId: String,
+  whatsappinstanceId: String,
+  whatsappToken: String,
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {

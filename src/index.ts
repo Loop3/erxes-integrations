@@ -12,11 +12,11 @@ import Accounts from './models/Accounts';
 import Configs from './models/Configs';
 import { initNylas } from './nylas/controller';
 import { initRedis } from './redisClient';
+import initSmooch from './smooch/controller';
 import { init } from './startup';
 import initTwitter from './twitter/controller';
 import initDaily from './videoCall/controller';
-
-initRedis();
+import initWhatsapp from './whatsapp/controller';
 
 const app = express();
 
@@ -112,8 +112,13 @@ initTwitter(app);
 // init chatfuel
 initChatfuel(app);
 
+// init whatsapp
+initWhatsapp(app);
 // init chatfuel
 initDaily(app);
+
+// init smooch
+initSmooch(app);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
@@ -125,6 +130,7 @@ const { PORT } = process.env;
 
 app.listen(PORT, () => {
   connect().then(async () => {
+    await initRedis();
     await initConsumer();
 
     // Initialize startup
