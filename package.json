@@ -19,6 +19,7 @@
   "scripts": {
     "start": "node dist",
     "dev": "DEBUG=erxes-integrations:* node_modules/.bin/ts-node-dev --respawn --ignore-watch node_modules src",
+    "dev-win": "set DEBUG=erxes-integrations:* & node_modules/.bin/ts-node-dev --respawn src",
     "test": "NODE_ENV=test jest --forceExit",
     "build": "tsc -p tsconfig.prod.json",
     "lint": "tslint 'src/**/*.ts'",
@@ -95,6 +96,6 @@
   },
   "snyk": true,
   "engines": {
-    "node": "10.x.x"
+    "node": "12.x.x"
   }
 }
