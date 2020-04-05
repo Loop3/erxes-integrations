@@ -2,6 +2,7 @@ import { sendRPCMessage } from '../messageBroker';
 import Integrations from '../models/Integrations';
 import { ConversationMessages, Conversations } from './models';
 import { getOrCreateCustomer } from './store';
+import { convertWAToHtml } from './helpers';
 
 const receiveMessage = async (message: any, integrationId: string) => {
   const integration = await Integrations.getIntegration({
@@ -15,7 +16,7 @@ const receiveMessage = async (message: any, integrationId: string) => {
   } else if (message.self === 'in') {
     const phoneNumber = message.contact.phone;
     let name = message.contact.name;
-    let content = message.message;
+    let content = convertWAToHtml(message.message);
     if (message.isGroupMsg) {
       name = `${name} - Group`;
       content = `${content} - From ${message.sender.name || message.sender.pushname}`;
@@ -83,7 +84,7 @@ const receiveMessage = async (message: any, integrationId: string) => {
 
       // save message on api //Todo
       let attachments = [];
-      if (message.type !== 'chat') {
+      if (!['chat', 'vcard'].includes(message.type)) {
         const attachment = { type: message.type, url: message.fileUrl };
         attachments = [attachment];
       }
@@ -94,6 +95,7 @@ const receiveMessage = async (message: any, integrationId: string) => {
           metaInfo: 'replaceContent',
           payload: JSON.stringify({
             content,
+            contentType: message.type === 'vcard' ? 'vcard' : undefined,
             attachments: (attachments || []).map(att => ({
               type: att.type,
               url: att.url,
