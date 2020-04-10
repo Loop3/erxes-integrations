@@ -102,6 +102,9 @@ const receiveMessage = async (message: any, integrationId: string) => {
             })),
             conversationId: conversation.erxesApiId,
             customerId: customer.erxesApiId,
+            isGroupMsg: message.isGroupMsg,
+            isNewMsg: message.isNewMsg,
+            createdAt: new Date(message.time),
           }),
         });
       } catch (e) {
