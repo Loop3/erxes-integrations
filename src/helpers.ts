@@ -208,7 +208,6 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
     await TwitterCustomers.deleteMany(selector);
   }
 
-
   if (kind === 'whatsapp') {
     debugWhatsapp('Removing whatsapp entries');
 
@@ -225,7 +224,7 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
     await WhatsappConversations.deleteMany(selector);
     await WhatsappCustomers.deleteMany(selector);
   }
-  
+
   if (kind === 'whatspro') {
     debugWhatsPro('Removing whatspro entries');
 
