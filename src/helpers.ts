@@ -31,8 +31,11 @@ import {
   Customers as GmailCustomers,
 } from './gmail/models';
 import { Accounts, Integrations } from './models';
-import { enableOrDisableAccount, removeExistingNylasWebhook } from './nylas/auth';
+import { removeExistingNylasWebhook } from './nylas/auth';
 import {
+  NylasExchangeConversationMessages,
+  NylasExchangeConversations,
+  NylasExchangeCustomers,
   NylasGmailConversationMessages,
   NylasGmailConversations,
   NylasGmailCustomers,
@@ -85,6 +88,7 @@ import {
 
 import { stopPushNotification } from './gmail/watch';
 import Configs from './models/Configs';
+import { enableOrDisableAccount } from './nylas/api';
 import { setupNylas } from './nylas/controller';
 import { createNylasWebhook } from './nylas/tracker';
 import { setupSmooch } from './smooch/controller';
@@ -200,8 +204,8 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
     }
 
     await TwitterConversationMessages.deleteMany(selector);
-    await TwitterConversations.deleteMany(selector);
-    await TwitterCustomers.deleteMany({ conversationId: { $in: conversationIds } });
+    await TwitterConversations.deleteMany({ conversationId: { $in: conversationIds } });
+    await TwitterCustomers.deleteMany(selector);
   }
 
   if (kind === 'whatsapp') {
@@ -301,6 +305,24 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
       await enableOrDisableAccount(account.uid, false);
     } catch (e) {
       debugNylas('Failed to subscription nylas-outlook account');
+      throw e;
+    }
+  }
+
+  if (kind === 'exchange') {
+    debugNylas('Removing nylas-exchange entries');
+
+    const conversationIds = await NylasYahooConversations.find(selector).distinct('_id');
+
+    await NylasExchangeCustomers.deleteMany(selector);
+    await NylasExchangeConversations.deleteMany(selector);
+    await NylasExchangeConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+
+    try {
+      // Cancel nylas subscription
+      await enableOrDisableAccount(account.uid, false);
+    } catch (e) {
+      debugNylas('Failed to subscription nylas-exchange account');
       throw e;
     }
   }
@@ -434,6 +456,7 @@ export const removeCustomers = async params => {
   await NylasOffice365Customers.deleteMany(selector);
   await NylasYahooCustomers.deleteMany(selector);
   await NylasImapCustomers.deleteMany(selector);
+  await NylasExchangeCustomers.deleteMany(selector);
   await ChatfuelCustomers.deleteMany(selector);
   await CallProCustomers.deleteMany(selector);
   await TwitterCustomers.deleteMany(selector);
@@ -471,9 +494,9 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
 
   await Configs.updateConfigs(configsMap);
 
-  const updatedTwitterConfig = await getTwitterConfig();
-
   resetConfigsCache();
+
+  const updatedTwitterConfig = await getTwitterConfig();
 
   const updatedNylasClientId = await getValueAsString('NYLAS_CLIENT_ID');
   const updatedNylasClientSecret = await getValueAsString('NYLAS_CLIENT_SECRET');
