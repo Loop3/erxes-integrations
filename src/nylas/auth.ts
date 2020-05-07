@@ -1,11 +1,11 @@
 import * as dotenv from 'dotenv';
 import { debugNylas } from '../debuggers';
-import Accounts, { IAccount } from '../models/Accounts';
+import { IAccount } from '../models/Accounts';
 import { getConfig, sendRequest } from '../utils';
 import { CONNECT_AUTHORIZE_URL, CONNECT_TOKEN_URL, NYLAS_API_URL } from './constants';
 import { updateAccount } from './store';
 import { IIntegrateProvider } from './types';
-import { decryptPassword, getNylasConfig, getProviderSettings, nylasInstance } from './utils';
+import { decryptPassword, getNylasConfig, getProviderSettings } from './utils';
 
 // loading config
 dotenv.config();
@@ -56,6 +56,39 @@ const connectYahooAndOutlookToNylas = async (kind: string, account: IAccount & {
   }
 };
 
+const connectExchangeToNylas = async (account: IAccount & { _id: string }) => {
+  const { username = '', password, email, host } = account;
+
+  if (!password || !email || !host) {
+    throw new Error('Missing Exhange config in Account');
+  }
+
+  let decryptedPassword;
+
+  try {
+    decryptedPassword = await decryptPassword(password);
+  } catch (e) {
+    throw new Error(e.message);
+  }
+
+  try {
+    const { access_token, account_id, billing_state } = await integrateProviderToNylas({
+      email,
+      kind: 'exchange',
+      scopes: 'email',
+      settings: {
+        username,
+        password: decryptedPassword,
+        eas_server_host: host,
+      },
+    });
+
+    await updateAccount(account._id, account_id, access_token, billing_state);
+  } catch (e) {
+    throw e;
+  }
+};
+
 /**
  * Connect IMAP to Nylas
  * @param {String} kind
@@ -65,7 +98,7 @@ const connectImapToNylas = async (account: IAccount & { _id: string }) => {
   const { imapHost, imapPort, smtpHost, smtpPort } = account;
 
   if (!imapHost || !imapPort || !smtpHost || !smtpPort) {
-    throw new Error('Missing imap env config');
+    throw new Error('Missing imap config');
   }
 
   const { email, password } = account;
@@ -109,7 +142,7 @@ const connectImapToNylas = async (account: IAccount & { _id: string }) => {
  * @param {String} kind
  * @param {Object} settings
  */
-const integrateProviderToNylas = async (args: IIntegrateProvider) => {
+export const integrateProviderToNylas = async (args: IIntegrateProvider) => {
   const { email, kind, settings, scopes } = args;
 
   let code;
@@ -156,25 +189,6 @@ const integrateProviderToNylas = async (args: IIntegrateProvider) => {
   }
 };
 
-/**
- * Enable or Disable nylas account billing state
- * @param {String} accountId
- * @param {Boolean} enable
- */
-const enableOrDisableAccount = async (accountId: string, enable: boolean) => {
-  debugNylas(`${enable} account with uid: ${accountId}`);
-
-  await nylasInstance('accounts', 'find', accountId).then(account => {
-    if (enable) {
-      return account.upgrade();
-    }
-
-    return account.downgrade();
-  });
-
-  return Accounts.updateOne({ uid: accountId }, { $set: { billingState: enable ? 'paid' : 'cancelled' } });
-};
-
 const removeExistingNylasWebhook = async (): Promise<void> => {
   const NYLAS_CLIENT_ID = await getConfig('NYLAS_CLIENT_ID');
   const NYLAS_CLIENT_SECRET = await getConfig('NYLAS_CLIENT_SECRET');
@@ -214,9 +228,8 @@ const removeExistingNylasWebhook = async (): Promise<void> => {
 
 export {
   removeExistingNylasWebhook,
-  enableOrDisableAccount,
-  integrateProviderToNylas,
   connectProviderToNylas,
   connectImapToNylas,
   connectYahooAndOutlookToNylas,
+  connectExchangeToNylas,
 };
