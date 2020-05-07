@@ -41,12 +41,12 @@ export const whatsappStyles = (format, wildcard, opTag, clTag) => {
 };
 
 export const convertWAToHtml = (message: string) => {
-  if (message) {
-    message = whatsappStyles(message, '_', '<i>', '</i>');
-    message = whatsappStyles(message, '*', '<b>', '</b>');
-    message = whatsappStyles(message, '~', '<s>', '</s>');
-    message = message.replace(/\n/gi, '<br/>');
-  }
+  if (!message) return message;
+
+  message = whatsappStyles(message, '_', '<i>', '</i>');
+  message = whatsappStyles(message, '*', '<b>', '</b>');
+  message = whatsappStyles(message, '~', '<s>', '</s>');
+  message = message.replace(/\n/gi, '<br/>');
 
   const urls = message.match(urlRegex({ strict: false })) || [];
 
