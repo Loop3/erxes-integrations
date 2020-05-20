@@ -97,6 +97,7 @@ export const loadConversationClass = () => {
 
 // conversation message ===========================
 export interface IConversationMessage {
+  erxesApiId?: string;
   mid: string;
   conversationId: string;
   content: string;
@@ -108,6 +109,7 @@ export interface IConversationMessageDocument extends IConversationMessage, Docu
 export const conversationMessageSchema = new Schema({
   _id: field({ pkey: true }),
   mid: { type: String, unique: true },
+  erxesApiId: { type: String, unique: true },
   conversationId: String,
   content: String,
   status: String,

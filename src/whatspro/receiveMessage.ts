@@ -13,6 +13,25 @@ const receiveMessage = async (message: any, integrationId: string) => {
 
   if (message.self === 'out') {
     await ConversationMessages.updateOne({ mid: message._id }, { $set: { status: message.status } });
+
+    // get conversation message
+    const conversationMessage = await ConversationMessages.findOne({
+      mid: message._id,
+    });
+
+    if (conversationMessage)
+      try {
+        await sendRPCMessage({
+          action: 'update-conversation-message',
+          payload: JSON.stringify({
+            id: conversationMessage.erxesApiId,
+            status: message.status,
+            createdAt: new Date(message.time),
+          }),
+        });
+      } catch (e) {
+        throw new Error(e);
+      }
   } else if (message.self === 'in') {
     const phoneNumber = message.contact.phone;
     let name = message.contact.name;
