@@ -109,7 +109,7 @@ export interface IConversationMessageDocument extends IConversationMessage, Docu
 export const conversationMessageSchema = new Schema({
   _id: field({ pkey: true }),
   mid: { type: String, unique: true },
-  erxesApiId: { type: String, unique: true },
+  erxesApiId: String,
   conversationId: String,
   content: String,
   status: String,
