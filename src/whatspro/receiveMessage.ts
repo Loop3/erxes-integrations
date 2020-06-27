@@ -33,15 +33,17 @@ const receiveMessage = async (message: any, integrationId: string) => {
         throw new Error(e);
       }
   } else if (message.self === 'in') {
-    const phoneNumber = message.contact.phone;
+    let phoneNumber = message.contact.phone;
     let name = message.contact.name;
+    let avatarUrl = message.contact.avatarUrl;
     let content = convertWAToHtml(message.message);
+
     if (message.isGroupMsg) {
       name = `${name} - Group`;
       content = `${content} - From ${message.sender.name || message.sender.pushname}`;
     }
 
-    const customer = await getOrCreateCustomer(phoneNumber, name, instanceId);
+    const customer = await getOrCreateCustomer(phoneNumber, name, instanceId, avatarUrl);
 
     let conversation = await Conversations.findOne({
       senderId: customer.id,
