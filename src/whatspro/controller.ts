@@ -49,15 +49,19 @@ const init = async app => {
   });
 
   app.post('/whatspro/reply', async (req, res) => {
-    const { attachments, conversationId, content, integrationId } = req.body;
+    const { attachments, conversationId, content, integrationId, messageId } = req.body;
 
     if (attachments.length > 1) {
       throw new Error('You can only attach one file');
     }
 
-    const conversation = await Conversations.getConversation({ erxesApiId: conversationId });
+    const conversation = await Conversations.getConversation({
+      erxesApiId: conversationId,
+    });
 
-    const integration = await Integrations.findOne({ erxesApiId: integrationId });
+    const integration = await Integrations.findOne({
+      erxesApiId: integrationId,
+    });
 
     const recipientId = conversation.recipientId;
     const token = integration.whatsProToken;
@@ -69,6 +73,7 @@ const init = async app => {
           conversationId: conversation._id,
           mid: message._id,
           content,
+          erxesApiId: messageId,
         });
       }
     } else {
@@ -77,6 +82,7 @@ const init = async app => {
         conversationId: conversation._id,
         mid: message._id,
         content,
+        erxesApiId: messageId,
       });
     }
 

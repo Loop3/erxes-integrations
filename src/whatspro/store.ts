@@ -11,7 +11,12 @@ export interface IUser {
   profile_image_url_https: string;
 }
 
-export const getOrCreateCustomer = async (phoneNumber: string, name: string, instanceId: string) => {
+export const getOrCreateCustomer = async (
+  phoneNumber: string,
+  name: string,
+  instanceId: string,
+  avatarUrl: string = '',
+) => {
   const integration = await Integrations.getIntegration({
     $and: [{ whatsProInstanceId: instanceId }, { kind: 'whatspro' }],
   });
@@ -41,6 +46,7 @@ export const getOrCreateCustomer = async (phoneNumber: string, name: string, ins
         primaryPhone: phoneNumber,
         isUser: true,
         isOnline: true,
+        avatar: avatarUrl,
       }),
     });
     customer.erxesApiId = apiCustomerResponse._id;
