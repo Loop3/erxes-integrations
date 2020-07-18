@@ -18,6 +18,7 @@ import initTwitter from './twitter/controller';
 import userMiddleware from './userMiddleware';
 import initDaily from './videoCall/controller';
 import initWhatsapp from './whatsapp/controller';
+import initWhatsPro from './whatspro/controller';
 
 const app = express();
 
@@ -143,11 +144,15 @@ initChatfuel(app);
 
 // init whatsapp
 initWhatsapp(app);
+
 // init chatfuel
 initDaily(app);
 
 // init smooch
 initSmooch(app);
+
+// init whatsPro
+initWhatsPro(app);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
