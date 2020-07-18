@@ -19,6 +19,7 @@
   "scripts": {
     "start": "node dist",
     "dev": "DEBUG=erxes-integrations:* node_modules/.bin/ts-node-dev --respawn --ignore-watch node_modules src",
+    "dev-win": "set DEBUG=erxes-integrations:* & node_modules/.bin/ts-node-dev --respawn src",
     "test": "NODE_ENV=test node --expose-gc --max_old_space_size=4000 ./node_modules/.bin/jest --runInBand --forceExit --silent --logHeapUsage",
     "build": "tsc -p tsconfig.prod.json",
     "lint": "tslint 'src/**/*.ts'",
@@ -48,11 +49,13 @@
     "express": "^4.16.4",
     "fbgraph": "^1.4.4",
     "formidable": "^1.2.1",
+    "get-urls": "^9.2.0",
     "googleapis": "^40.0.0",
     "meteor-random": "^0.0.3",
     "migrate": "^1.6.2",
     "mongodb-memory-server": "^6.6.0",
     "mongoose": "5.7.5",
+    "normalize-url": "^5.0.0",
     "nylas": "^4.7.0",
     "querystring": "^0.2.0",
     "redis": "^2.8.0",
@@ -60,8 +63,10 @@
     "request-promise": "^4.2.4",
     "sanitize-html": "^1.20.1",
     "sinon": "^7.5.0",
-    "smooch-core": "^8.8.0",
-    "uuid": "^3.3.3"
+    "smooch-core": "^8.8.0",    
+    "uuid": "^3.3.3",
+    "snyk": "^1.305.0",
+    "url-regex": "^5.0.0",
   },
   "peerOptionalDependencies": {
     "kerberos": "^1.0.0"

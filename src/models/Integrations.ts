@@ -28,6 +28,8 @@ export interface IIntegration {
   smoochIntegrationId?: string;
   whatsappinstanceId?: string;
   whatsappToken?: string;
+  whatsProInstanceId?: string;
+  whatsProToken?: string;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}
@@ -67,6 +69,8 @@ export const integrationSchema = new Schema({
   smoochIntegrationId: String,
   whatsappinstanceId: String,
   whatsappToken: String,
+  whatsProInstanceId: String,
+  whatsProToken: String,
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
