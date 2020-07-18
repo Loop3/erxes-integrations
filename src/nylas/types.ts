@@ -47,6 +47,7 @@ export interface IIntegrateProvider {
 }
 
 export interface IProviderSettings {
+  eas_server_host?: string;
   imap_username?: string;
   imap_password?: string;
   smtp_username?: string;
@@ -131,4 +132,17 @@ export interface INylasConversationMessageArguments {
     erxesApiId: string;
   };
   message: INylasConversationMessage & { id: string };
+}
+
+export interface INylasIntegrationData {
+  username?: string;
+  password?: string;
+  email?: string;
+  host?: string;
+  imapHost?: string;
+  imapPort?: number;
+  smtpHost?: string;
+  smtpPort?: number;
+  uid?: string;
+  billingState?: string;
 }

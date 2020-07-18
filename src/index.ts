@@ -2,21 +2,22 @@ import * as bodyParser from 'body-parser';
 import * as express from 'express';
 import initCallPro from './callpro/controller';
 import initChatfuel from './chatfuel/controller';
-import { connect } from './connection';
+import { connect, mongoStatus } from './connection';
 import { debugInit, debugIntegrations, debugRequest, debugResponse } from './debuggers';
 import initFacebook from './facebook/controller';
 import initGmail from './gmail/controller';
 import { removeIntegration, updateIntegrationConfigs } from './helpers';
-import { initConsumer } from './messageBroker';
+import { initConsumer, rabbitMQStatus } from './messageBroker';
 import Accounts from './models/Accounts';
 import Configs from './models/Configs';
 import { initNylas } from './nylas/controller';
-import { initRedis } from './redisClient';
+import { initRedis, redisStatus } from './redisClient';
+import initSmooch from './smooch/controller';
 import { init } from './startup';
 import initTwitter from './twitter/controller';
+import userMiddleware from './userMiddleware';
 import initDaily from './videoCall/controller';
-
-initRedis();
+import initWhatsapp from './whatsapp/controller';
 
 const app = express();
 
@@ -33,6 +34,8 @@ const rawBodySaver = (req, _res, buf, encoding) => {
 app.use(bodyParser.urlencoded({ limit: '10mb', verify: rawBodySaver, extended: true }));
 app.use(bodyParser.json({ limit: '10mb', verify: rawBodySaver }));
 
+app.use(userMiddleware);
+
 // Intentionally placing this route above raw bodyParser
 // File upload in nylas controller is not working with rawParser
 initNylas(app);
@@ -43,6 +46,32 @@ app.use((req, _res, next) => {
   debugRequest(debugIntegrations, req);
 
   next();
+});
+
+// for health check
+app.get('/status', async (_req, res, next) => {
+  try {
+    await mongoStatus();
+  } catch (e) {
+    debugIntegrations('MongoDB is not running');
+    return next(e);
+  }
+
+  try {
+    await redisStatus();
+  } catch (e) {
+    debugIntegrations('Redis is not running');
+    return next(e);
+  }
+
+  try {
+    await rabbitMQStatus();
+  } catch (e) {
+    debugIntegrations('RabbitMQ is not running');
+    return next(e);
+  }
+
+  res.end('ok');
 });
 
 app.post('/update-configs', async (req, res, next) => {
@@ -112,8 +141,13 @@ initTwitter(app);
 // init chatfuel
 initChatfuel(app);
 
+// init whatsapp
+initWhatsapp(app);
 // init chatfuel
 initDaily(app);
+
+// init smooch
+initSmooch(app);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
@@ -125,6 +159,7 @@ const { PORT } = process.env;
 
 app.listen(PORT, () => {
   connect().then(async () => {
+    await initRedis();
     await initConsumer();
 
     // Initialize startup

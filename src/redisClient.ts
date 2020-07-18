@@ -77,8 +77,95 @@ export const getArray = async (key: string): Promise<any> => {
 };
 
 /*
+ * Check if value exists in set
+ */
+export const inArray = async (setKey: string, setMember: string): Promise<any> => {
+  try {
+    const response = await new Promise((resolve, reject) => {
+      client.sismember(setKey, setMember, (error, reply) => {
+        if (error) {
+          return reject(error);
+        }
+
+        return resolve(reply);
+      });
+    });
+
+    return response;
+
+    // handle already stored invalid type error
+  } catch (e) {
+    if (e.message.includes('WRONGTYPE')) {
+      client.del(setKey);
+    }
+
+    return false;
+  }
+};
+
+/*
  * Set array
  */
 export const setArray = (key: string, value: any[]) => {
   client.set(key, JSON.stringify(value));
+};
+
+export const removeKey = async (key: string) => {
+  return new Promise((resolve, reject) => {
+    client.del(key, (error, response) => {
+      if (error) {
+        return reject(error);
+      }
+
+      if (response === 1) {
+        return resolve('success');
+      }
+    });
+  });
+};
+
+/*
+ * Add a value to a set or do nothing if it already exists
+ */
+export const addToArray = (setKey: string, setMember: string) => {
+  return new Promise((resolve, reject) => {
+    client.sadd(setKey, setMember, (error, reply) => {
+      if (error) {
+        return reject(error);
+      }
+
+      return resolve(reply);
+    });
+  });
+};
+
+/**
+ * Remove a value from a set or do nothing if it is not present
+ */
+export const removeFromArray = (setKey: string, setMember: string) => {
+  return new Promise((resolve, reject) => {
+    client.srem(setKey, setMember, (error, reply) => {
+      if (error) {
+        return reject(error);
+      }
+
+      return resolve(reply);
+    });
+  });
+};
+
+/**
+ * Health check status
+ * retryStrategy - get response immediately
+ */
+export const redisStatus = () => {
+  return new Promise((resolve, reject) => {
+    client.ping((error, result) => {
+      if (error) {
+        return reject(error);
+      }
+
+      return resolve(result);
+    });
+  });
 };
