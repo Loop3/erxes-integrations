@@ -63,8 +63,8 @@
     "request-promise": "^4.2.4",
     "sanitize-html": "^1.20.1",
     "sinon": "^7.5.0",
-    "url-regex": "^5.0.0",
     "smooch-core": "^8.8.0",
+    "url-regex": "^5.0.0",
     "uuid": "^3.3.3"
   },
   "peerOptionalDependencies": {
@@ -85,7 +85,7 @@
     "faker": "^4.1.0",
     "husky": "^0.13.4",
     "jest": "22.0.4",
-    "lint-staged": "^3.6.0",
+    "lint-staged": "^10.2.11",
     "prettier": "^1.19.1",
     "release-it": "^12.4.3",
     "ts-jest": "22.0.4",
