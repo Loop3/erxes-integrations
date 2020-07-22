@@ -11,13 +11,13 @@ WORKDIR /erxes-integrations
 
 COPY --chown=node:node . /erxes-integrations
 
-RUN yarn
-
-RUN yarn build
-
 RUN chown -R node:node /erxes-integrations
 
 USER node
+
+RUN yarn
+
+RUN yarn build
 
 EXPOSE 3400
 
