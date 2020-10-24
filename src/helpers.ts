@@ -16,6 +16,7 @@ import {
   debugTelnyx,
   debugTwitter,
   debugWhatsapp,
+  debugWhatsPro,
 } from './debuggers';
 import {
   Comments as FacebookComments,
@@ -77,6 +78,12 @@ import {
   Conversations as TwitterConversations,
   Customers as TwitterCustomers,
 } from './twitter/models';
+import {
+  ConversationMessages as WhatsProConversationMessages,
+  Conversations as WhatsProConversations,
+  Customers as WhatsProCustomers,
+} from './whatspro/models';
+
 import { getEnv, resetConfigsCache, sendRequest } from './utils';
 import { logout, setupChatApi as setupWhatsapp } from './whatsapp/api';
 import {
@@ -222,6 +229,16 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
     await WhatsappConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
     await WhatsappConversations.deleteMany(selector);
     await WhatsappCustomers.deleteMany(selector);
+  }
+
+  if (kind === 'whatspro') {
+    debugWhatsPro('Removing whatspro entries');
+
+    const conversationIds = await WhatsProConversations.find(selector).distinct('_id');
+
+    await WhatsProConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await WhatsProConversations.deleteMany(selector);
+    await WhatsProCustomers.deleteMany(selector);
   }
 
   // Remove from core =========
@@ -468,6 +485,7 @@ export const removeCustomers = async params => {
   await SmoochLineCustomers.deleteMany(selector);
   await SmoochTwilioCustomers.deleteMany(selector);
   await WhatsappCustomers.deleteMany(selector);
+  await WhatsProCustomers.deleteMany(selector);
 };
 
 export const updateIntegrationConfigs = async (configsMap): Promise<void> => {

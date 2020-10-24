@@ -28,6 +28,8 @@ export interface IIntegration {
   smoochIntegrationId?: string;
   whatsappinstanceId?: string;
   whatsappToken?: string;
+  whatsProInstanceId?: string;
+  whatsProToken?: string;
   telnyxPhoneNumber?: string;
   telnyxProfileId?: string;
 }
@@ -69,6 +71,8 @@ export const integrationSchema = new Schema({
   smoochIntegrationId: String,
   whatsappinstanceId: String,
   whatsappToken: String,
+  whatsProInstanceId: String,
+  whatsProToken: String,
   telnyxPhoneNumber: field({ type: String, label: 'Telnyx phone number' }),
   telnyxProfileId: field({ type: String, label: 'Telnyx messaging profile id' }),
 });
