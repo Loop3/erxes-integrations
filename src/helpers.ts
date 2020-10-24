@@ -13,6 +13,7 @@ import {
   debugGmail,
   debugNylas,
   debugSmooch,
+  debugTelnyx,
   debugTwitter,
   debugWhatsapp,
   debugWhatsPro,
@@ -66,6 +67,11 @@ import {
   SmoochViberConversations,
   SmoochViberCustomers,
 } from './smooch/models';
+import {
+  ConversationMessages as TelnyxConversationMessages,
+  Conversations as TelnyxConversations,
+  Customers as TelnyxCustomers,
+} from './telnyx/models';
 import { getTwitterConfig, unsubscribe } from './twitter/api';
 import {
   ConversationMessages as TwitterConversationMessages,
@@ -86,7 +92,7 @@ import {
   Customers as WhatsappCustomers,
 } from './whatsapp/models';
 
-import { stopPushNotification } from './gmail/watch';
+import { revokeToken, unsubscribeUser } from './gmail/api';
 import Configs from './models/Configs';
 import { enableOrDisableAccount } from './nylas/api';
 import { setupNylas } from './nylas/controller';
@@ -149,16 +155,17 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
 
     integrationRemoveBy = { email: integration.email };
 
-    try {
-      await stopPushNotification(integration.email);
-    } catch (e) {
-      debugGmail('Failed to stop push notification of gmail account');
-      throw e;
-    }
-
     await GmailCustomers.deleteMany(selector);
     await GmailConversations.deleteMany(selector);
     await GmailConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+
+    try {
+      await unsubscribeUser(integration.email);
+      await revokeToken(integration.email);
+    } catch (e) {
+      debugGmail('Failed to unsubscribe gmail account');
+      throw e;
+    }
   }
 
   if (kind === 'gmail' && integration.nylasToken) {
@@ -413,6 +420,20 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
     await SmoochTwilioConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
   }
 
+  if (kind === 'telnyx') {
+    debugTelnyx('Removing telnyx entries');
+
+    const conversationIds = await TelnyxConversations.find(selector).distinct('_id');
+
+    try {
+      await TelnyxCustomers.deleteMany(selector);
+      await TelnyxConversations.deleteMany(selector);
+      await TelnyxConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  }
+
   await Integrations.deleteOne({ _id });
 
   return erxesApiId;
@@ -521,7 +542,8 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
       await createNylasWebhook();
     }
   } catch (e) {
-    debugNylas(e);
+    debugNylas(e.message);
+    throw e;
   }
 
   try {

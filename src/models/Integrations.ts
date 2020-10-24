@@ -30,6 +30,8 @@ export interface IIntegration {
   whatsappToken?: string;
   whatsProInstanceId?: string;
   whatsProToken?: string;
+  telnyxPhoneNumber?: string;
+  telnyxProfileId?: string;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}
@@ -40,13 +42,13 @@ export const integrationSchema = new Schema({
   kind: String,
   accountId: String,
   erxesApiId: String,
-  phoneNumber: String,
-  recordUrl: String,
+  phoneNumber: field({ type: String, label: 'CallPro phone number', optional: true }),
+  recordUrl: field({ type: String, label: 'CallPro record url', optional: true }),
   emailScope: String,
   nylasToken: String,
   nylasAccountId: String,
   nylasBillingState: String,
-  facebookPageIds: [String],
+  facebookPageIds: field({ type: [String], label: 'Facebook page ids', optional: true }),
   email: String,
   expiration: String,
   gmailHistoryId: String,
@@ -71,6 +73,8 @@ export const integrationSchema = new Schema({
   whatsappToken: String,
   whatsProInstanceId: String,
   whatsProToken: String,
+  telnyxPhoneNumber: field({ type: String, label: 'Telnyx phone number' }),
+  telnyxProfileId: field({ type: String, label: 'Telnyx messaging profile id' }),
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
