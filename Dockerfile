@@ -1,11 +1,4 @@
-FROM node:14.4.0-slim
-
-ARG DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update && \
-    apt-get install -y \
-    git nano && \
-    rm -rf /var/lib/apt/lists/*
+FROM node:12.18-slim
 
 WORKDIR /erxes-integrations
 

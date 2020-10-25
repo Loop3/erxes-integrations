@@ -1,5 +1,6 @@
 import * as request from 'request-promise';
 import { getEnv } from '../utils';
+import { WHATSPRO_API_URL } from './constants';
 interface IContact {
   _id: string;
   name: string;
@@ -17,12 +18,10 @@ interface IMessage {
   status: number;
 }
 
-const base_url = 'https://whatspro.me';
-
 export const reply = (receiverId: string, content: string, token: string): Promise<IMessage> => {
   return new Promise((resolve, reject) => {
     const requestOptions = {
-      url: `${base_url}/api/message/fast?token=${token}`,
+      url: `${WHATSPRO_API_URL}/api/message/fast?token=${token}`,
       body: {
         phone: receiverId,
         message: content,
@@ -43,7 +42,7 @@ export const reply = (receiverId: string, content: string, token: string): Promi
 export const sendFile = (receiverId: string, body: string, src: string, token: string): Promise<IMessage> => {
   return new Promise((resolve, reject) => {
     const requestOptions = {
-      url: `${base_url}/api/message/fast?token=${token}`,
+      url: `${WHATSPRO_API_URL}/api/message/fast?token=${token}`,
       body: {
         phone: receiverId,
         message: body,
@@ -65,7 +64,7 @@ export const sendFile = (receiverId: string, body: string, src: string, token: s
 export const setupInstance = (integrationId: string, token: string): Promise<void> => {
   const webhookUrl = `${getEnv({ name: 'DOMAIN' })}/whatspro/webhook?integrationId=${integrationId}`;
   const requestOptions = {
-    url: `${base_url}/api/webhook?token=${token}`,
+    url: `${WHATSPRO_API_URL}/api/webhook?token=${token}`,
     body: {
       url: webhookUrl,
       channel: 'whatsapp',
