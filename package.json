@@ -45,6 +45,7 @@
     "@types/mongoose": "^5.2.1",
     "@types/node": "^10.12.18",
     "amqplib": "^0.5.5",
+    "async-lock": "^1.2.6",
     "body-parser": "^1.17.1",
     "botbuilder": "^4.4.0",
     "botbuilder-adapter-facebook-erxes": "^1.0.5",
@@ -81,6 +82,7 @@
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^1.1.4",
+    "@types/async-lock": "^1.1.2",
     "husky": "^0.13.4",
     "jest": "22.0.4",
     "lint-staged": "^3.6.0",
