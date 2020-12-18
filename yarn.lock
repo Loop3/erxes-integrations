@@ -5560,6 +5560,7 @@ merge@^1.2.0:
 meteor-random@^0.0.3:
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/meteor-random/-/meteor-random-0.0.3.tgz#0d1489ecdb9bcb58bb52decebfbceddf54473a68"
+  integrity sha1-DRSJ7Nuby1i7Ut7Ov7zt31RHOmg=
   dependencies:
     crypto "0.0.3"
 
