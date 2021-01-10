@@ -51,28 +51,27 @@ const init = async app => {
   app.post('/whatspro/reply', async (req, res) => {
     const { attachments, conversationId, content, integrationId, messageId } = req.body;
 
-    if (attachments.length > 1) {
-      throw new Error('You can only attach one file');
-    }
-
     const conversation = await Conversations.getConversation({
       erxesApiId: conversationId,
     });
 
+    const recipientId = conversation.recipientId;
+
     const integration = await Integrations.findOne({
       erxesApiId: integrationId,
     });
-
-    const recipientId = conversation.recipientId;
     const token = integration.whatsProToken;
 
     if (attachments.length !== 0) {
       for (const attachment of attachments) {
-        const message = await whatsProUtils.sendFile(recipientId, content, attachment.url, token);
+        const body = attachments[attachments.length - 1] === attachment ? content : '';
+
+        const message = await whatsProUtils.sendFile(recipientId, body, attachment.url, token);
+
         await ConversationMessages.create({
           conversationId: conversation._id,
           mid: message._id,
-          content,
+          content: body,
           erxesApiId: messageId,
         });
       }
