@@ -21,7 +21,20 @@ export const getOrCreateCustomer = async (
     $and: [{ whatsProInstanceId: instanceId }, { kind: 'whatspro' }],
   });
 
-  let customer = await Customers.findOne({ phoneNumber });
+  const query = {
+    $or: [{ phoneNumber }],
+  };
+
+  if (phoneNumber.indexOf('55') === 0) {
+    // Brazilian new mobile phone number issue fix because WhatsApp still uses the old format for some users
+    if (phoneNumber.length === 12) {
+      query.$or.push({ phoneNumber: phoneNumber.substr(0, 4) + '9' + phoneNumber.substr(5) });
+    } else if (phoneNumber.length === 13) {
+      query.$or.push({ phoneNumber: phoneNumber.substr(0, 4) + phoneNumber.substr(5) });
+    }
+  }
+
+  let customer = await Customers.findOne(query);
 
   if (!customer) {
     try {
