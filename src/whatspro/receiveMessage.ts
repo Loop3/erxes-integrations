@@ -49,6 +49,11 @@ const receiveMessage = async (message: any, integrationId: string) => {
         let avatarUrl = message.contact.avatarUrl;
         let content = convertWAToHtml(message.message);
 
+        if (message.isGroupMsg) {
+          phoneNumber = message.chat.id;
+          name = `${name} - Group`;
+        }
+
         const customer = await getOrCreateCustomer(phoneNumber, name, instanceId, avatarUrl);
 
         let conversation = await Conversations.findOne({
