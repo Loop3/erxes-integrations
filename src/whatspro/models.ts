@@ -9,6 +9,23 @@ export interface ICustomer {
   integrationId: string;
 }
 
+export interface IContact {
+  _id: string;
+  name: string;
+  phone: string;
+}
+
+export interface IMessage {
+  _id: string;
+  contact: IContact;
+  message: string;
+  fileUrl: string;
+  type: string;
+  self: string;
+  identificator: string;
+  status: number;
+}
+
 export interface ICustomerDocument extends ICustomer, Document {}
 
 export const customerSchema = new Schema({
