@@ -3,6 +3,8 @@ import { getEnv } from '../utils';
 import { WHATSPRO_API_URL } from './constants';
 import { IMessage } from './models';
 
+console.log('WHATSPRO_API_URL', WHATSPRO_API_URL);
+
 export const reply = (receiverId: string, messageId: string, content: string, token: string): Promise<IMessage> => {
   return new Promise((resolve, reject) => {
     const requestOptions = {
