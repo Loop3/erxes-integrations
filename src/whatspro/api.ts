@@ -1,33 +1,22 @@
 import * as request from 'request-promise';
 import { getEnv } from '../utils';
 import { WHATSPRO_API_URL } from './constants';
-interface IContact {
-  _id: string;
-  name: string;
-  phone: string;
-}
+import { IMessage } from './models';
 
-interface IMessage {
-  _id: string;
-  contact: IContact;
-  message: string;
-  fileUrl: string;
-  type: string;
-  self: string;
-  identificator: string;
-  status: number;
-}
+console.log('WHATSPRO_API_URL', WHATSPRO_API_URL);
 
-export const reply = (receiverId: string, content: string, token: string): Promise<IMessage> => {
+export const reply = (receiverId: string, messageId: string, content: string, token: string): Promise<IMessage> => {
   return new Promise((resolve, reject) => {
     const requestOptions = {
       url: `${WHATSPRO_API_URL}/api/message/fast?token=${token}`,
       body: {
+        id: messageId,
         phone: receiverId,
         message: content,
       },
       json: true,
     };
+
     request
       .post(requestOptions)
       .then(res => {
@@ -39,11 +28,18 @@ export const reply = (receiverId: string, content: string, token: string): Promi
   });
 };
 
-export const sendFile = (receiverId: string, body: string, src: string, token: string): Promise<IMessage> => {
+export const sendFile = (
+  receiverId: string,
+  messageId: string,
+  body: string,
+  src: string,
+  token: string,
+): Promise<IMessage> => {
   return new Promise((resolve, reject) => {
     const requestOptions = {
       url: `${WHATSPRO_API_URL}/api/message/fast?token=${token}`,
       body: {
+        id: messageId,
         phone: receiverId,
         message: body,
         fileUrl: src,

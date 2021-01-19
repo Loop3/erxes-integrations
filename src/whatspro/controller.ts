@@ -1,9 +1,38 @@
+import { ObjectId } from 'mongodb';
 import { debugRequest, debugResponse, debugWhatsPro } from '../debuggers';
+import { sendRPCMessage } from '../messageBroker';
 
 import { Integrations } from '../models';
 import * as whatsProUtils from './api';
-import { ConversationMessages, Conversations } from './models';
+import { ConversationMessages, Conversations, IMessage } from './models';
 import receiveMessage from './receiveMessage';
+
+function handleCreateResult(message: IMessage) {
+  console.log(message);
+}
+
+async function handleCreateFailed(e: any) {
+  const conversationMessage = await ConversationMessages.findOne({
+    mid: e.options.body.id,
+  });
+
+  if (conversationMessage) {
+    await ConversationMessages.updateOne({ mid: e.options.body.id }, { $set: { status: 98 } });
+
+    try {
+      await sendRPCMessage({
+        action: 'update-conversation-message',
+        payload: JSON.stringify({
+          id: conversationMessage.erxesApiId,
+          status: 98,
+        }),
+      });
+    } catch (e) {
+      const error = new Error(e);
+      throw error;
+    }
+  }
+}
 
 const init = async app => {
   app.post('/whatspro/webhook', async (req, res, next) => {
@@ -60,29 +89,40 @@ const init = async app => {
     const integration = await Integrations.findOne({
       erxesApiId: integrationId,
     });
+
     const token = integration.whatsProToken;
 
     if (attachments.length !== 0) {
       for (const attachment of attachments) {
+        const whatsProId = new ObjectId().toHexString();
         const body = attachments[attachments.length - 1] === attachment ? content : '';
-
-        const message = await whatsProUtils.sendFile(recipientId, body, attachment.url, token);
 
         await ConversationMessages.create({
           conversationId: conversation._id,
-          mid: message._id,
+          mid: whatsProId,
           content: body,
           erxesApiId: messageId,
         });
+
+        whatsProUtils
+          .sendFile(recipientId, whatsProId, body, attachment.url, token)
+          .then(handleCreateResult)
+          .catch(handleCreateFailed);
       }
     } else {
-      const message = await whatsProUtils.reply(recipientId, content, token);
+      const whatsProId = new ObjectId().toHexString();
+
       await ConversationMessages.create({
         conversationId: conversation._id,
-        mid: message._id,
+        mid: whatsProId,
         content,
         erxesApiId: messageId,
       });
+
+      whatsProUtils
+        .reply(recipientId, whatsProId, content, token)
+        .then(handleCreateResult)
+        .catch(handleCreateFailed);
     }
 
     // save on integrations db
