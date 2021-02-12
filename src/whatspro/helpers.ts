@@ -1,4 +1,4 @@
-const urlRegex = require('url-regex');
+import urlRegex = require('url-regex-safe');
 const normalizeUrl = require('normalize-url');
 
 export const isAplhanumeric = c => {
@@ -48,10 +48,18 @@ export const convertWAToHtml = (message: string) => {
   message = whatsappStyles(message, '~', '<s>', '</s>');
   message = message.replace(/\n/gi, '<br/>');
 
-  const urls = message.match(urlRegex({ strict: false })) || [];
+  const urls = message.match(urlRegex({ strict: false, auth: true })) || [];
 
   urls.forEach(url => {
-    message = message.replace(url, `<a href='${normalizeUrl(url)}' target='_blank'>${url}</a>`);
+    if (
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+        url,
+      )
+    ) {
+      message = message.replace(url, `<a href='mailto:${url}'>${url}</a>`);
+    } else {
+      message = message.replace(url, `<a href='${normalizeUrl(url)}' target='_blank'>${url}</a>`);
+    }
   });
 
   return message;

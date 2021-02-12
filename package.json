@@ -75,6 +75,7 @@
     "ts-node": "8.0.3",
     "underscore": "^1.10.2",
     "url-regex": "^5.0.0",
+    "url-regex-safe": "^1.0.2",
     "uuid": "^3.3.3"
   },
   "peerOptionalDependencies": {
@@ -83,6 +84,7 @@
   "devDependencies": {
     "@release-it/conventional-changelog": "^1.1.4",
     "@types/async-lock": "^1.1.2",
+    "@types/url-regex-safe": "^1.0.0",
     "husky": "^0.13.4",
     "jest": "22.0.4",
     "lint-staged": "^10.2.11",
